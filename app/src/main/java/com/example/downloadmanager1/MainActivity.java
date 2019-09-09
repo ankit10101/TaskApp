@@ -7,13 +7,17 @@ import androidx.core.app.ActivityCompat;
 import android.Manifest;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -28,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
 
     Button button;
     EditText editText;
-    ImageView imageView;
     private long downloadID;
     private String url;
 
@@ -51,12 +54,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         button = findViewById(R.id.download);
         editText = findViewById(R.id.etURL);
-        imageView = findViewById(R.id.imageView);
         registerReceiver(onDownloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (
+                if (    //Check for permissions
                         ActivityCompat.checkSelfPermission(
                                 getBaseContext(),
                                 Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -74,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 
     @Override
@@ -85,23 +86,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void beginDownload() {
         File file = new File(getExternalFilesDir(null), "Dummy");
-        /*
-        Create a DownloadManager.Request with all the information necessary to start the download
-         */
+        // Create a DownloadManager.Request with all the information necessary to start the download
         url = editText.getText().toString();
-        if (!url.startsWith("http://") || !url.startsWith("https://")) {
-            url = "https://" + url;
-        }
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url))
                 .setTitle("Dummy File")// Title of the Download Notification
                 .setDescription("Downloading")// Description of the Download Notification
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)// Visibility of the download Notification
-                .setDestinationUri(Uri.fromFile(file))// Uri of the destination file
-                //.setRequiresCharging(false)// Set if charging is required to begin the download
+                .setDestinationUri(Uri.fromFile(file))// Uri of the destination file.
+                .setMimeType(getMimeType(url))
                 .setAllowedOverMetered(true)// Set if download is allowed on Mobile network
                 .setAllowedOverRoaming(true);// Set if download is allowed on roaming network
         DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-        downloadID = downloadManager.enqueue(request);// enqueue puts the download request in the queue.
+        if (downloadManager != null) {
+            downloadID = downloadManager.enqueue(request);// enqueue puts the download request in the queue.
+        }
     }
 
     @Override
@@ -113,12 +111,23 @@ public class MainActivity extends AppCompatActivity {
 
             } else {
                 url = editText.getText().toString();
-                if (!url.startsWith("http://") || !url.startsWith("https://")) {
-                    url = "https://" + url;
+                String type = getMimeType(url);
+                if (type.startsWith("image")) {
+                    startActivity(new Intent(this, ImageActivity.class).setData(Uri.parse(url)));
+                } else {
+                    startActivity(new Intent(this, VideoActivity.class).setData(Uri.parse(url)));
                 }
-                Picasso.get().load(Uri.parse(url)).into(imageView);
-                Toast.makeText(this, "Does not have the required permission", Toast.LENGTH_SHORT).show();
             }
         }
     }
+
+    public static String getMimeType(String url) {
+        String type = null;
+        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+        if (extension != null) {
+            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        }
+        return type;
+    }
+
 }
