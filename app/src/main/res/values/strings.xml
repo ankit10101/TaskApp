@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">DownloadManager1</string>
+    <string name="app_name">TaskApp</string>
     <string name="download">Download</string>
     <string name="enter_the_image_or_video_link">Enter the image or video link</string>
 </resources>

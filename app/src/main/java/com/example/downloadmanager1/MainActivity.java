@@ -88,6 +88,9 @@ public class MainActivity extends AppCompatActivity {
         File file = new File(getExternalFilesDir(null), "Dummy");
         // Create a DownloadManager.Request with all the information necessary to start the download
         url = editText.getText().toString();
+        if (!url.startsWith("http://") || !url.startsWith("https://")) {
+            url = "https://" + url;
+        }
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url))
                 .setTitle("Dummy File")// Title of the Download Notification
                 .setDescription("Downloading")// Description of the Download Notification
@@ -111,6 +114,9 @@ public class MainActivity extends AppCompatActivity {
 
             } else {
                 url = editText.getText().toString();
+                if (!url.startsWith("http://") || !url.startsWith("https://")) {
+                    url = "https://" + url;
+                }
                 String type = getMimeType(url);
                 if (type.startsWith("image")) {
                     startActivity(new Intent(this, ImageActivity.class).setData(Uri.parse(url)));
