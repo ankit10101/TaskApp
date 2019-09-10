@@ -1,32 +1,25 @@
-package com.example.downloadmanager1;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
+package com.example.taskapp;
 
 import android.Manifest;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
-import android.content.ContentProvider;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import java.io.File;
-import java.net.URI;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private long downloadID;
     private String url;
 
+    // To let the app know when the download is completed
     private BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -88,9 +82,6 @@ public class MainActivity extends AppCompatActivity {
         File file = new File(getExternalFilesDir(null), "Dummy");
         // Create a DownloadManager.Request with all the information necessary to start the download
         url = editText.getText().toString();
-//        if (!url.startsWith("http://") || !url.startsWith("https://")) {
-//            url = "https://" + url;
-//        }
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url))
                 .setTitle("Dummy File")// Title of the Download Notification
                 .setDescription("Downloading")// Description of the Download Notification
@@ -114,9 +105,6 @@ public class MainActivity extends AppCompatActivity {
 
             } else {
                 url = editText.getText().toString();
-//                if (!url.startsWith("http://") || !url.startsWith("https://")) {
-//                    url = "https://" + url;
-//                }
                 String type = getMimeType(url);
                 if (type.startsWith("image")) {
                     startActivity(new Intent(this, ImageActivity.class).setData(Uri.parse(url)));
@@ -127,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //TO get MimeType of the media to be downloaded
     public static String getMimeType(String url) {
         String type = null;
         String extension = MimeTypeMap.getFileExtensionFromUrl(url);

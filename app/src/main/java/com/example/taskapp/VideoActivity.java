@@ -1,11 +1,11 @@
-package com.example.downloadmanager1;
-
-import androidx.appcompat.app.AppCompatActivity;
+package com.example.taskapp;
 
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.MediaController;
 import android.widget.VideoView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class VideoActivity extends AppCompatActivity {
 
